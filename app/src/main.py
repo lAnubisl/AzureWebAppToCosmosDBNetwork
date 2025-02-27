@@ -1,32 +1,26 @@
 import os
 from fastapi import FastAPI, HTTPException
-from azure.cosmos import CosmosClient, PartitionKey, exceptions
+from azure.cosmos import CosmosClient, exceptions
 from azure.identity import DefaultAzureCredential
 
 app = FastAPI()
 
 # Cosmos DB configuration (without using a key)
-COSMOS_URL = os.environ.get("COSMOS_URL", "https://your-cosmos-account.documents.azure.com:443/")
-DATABASE_NAME = os.environ.get("COSMOS_DATABASE", "mydatabase")
-CONTAINER_NAME = os.environ.get("COSMOS_CONTAINER", "mycontainer")
+COSMOS_URL = os.environ.get("COSMOS_URL", "https://cosmos-asgbdsfgegdfg.documents.azure.com:443/")
+DATABASE_NAME = os.environ.get("COSMOS_DATABASE", "data")
+CONTAINER_NAME = os.environ.get("COSMOS_CONTAINER", "users")
 
-# Use Azure AD credential for RBAC. When running on Azure (with a managed identity),
-# this will automatically use the managed identity. When running locally, ensure you're logged in.
 credential = DefaultAzureCredential()
-
-# Initialize the Cosmos DB client using the token credential
 client = CosmosClient(COSMOS_URL, credential=credential)
+database = client.get_database_client(DATABASE_NAME)
+container = database.get_container_client(CONTAINER_NAME)
 
-# Create the database if it doesn't exist
-database = client.create_database_if_not_exists(id=DATABASE_NAME)
-
-# Create the container if it doesn't exist.
-# In this example, we use the 'id' field as the partition key.
-container = database.create_container_if_not_exists(
-    id=CONTAINER_NAME,
-    partition_key=PartitionKey(path="/id"),
-    offer_throughput=400
-)
+@app.get("/health")
+async def health():
+    """
+    Health check endpoint.
+    """
+    return {"status": "healthy"}
 
 @app.post("/items")
 async def create_item(item: dict):

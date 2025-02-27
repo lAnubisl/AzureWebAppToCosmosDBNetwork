@@ -6,10 +6,7 @@
         "vscode": {
             "settings": {},
             "extensions": [
-                "hashicorp.terraform",
-                "ms-azuretools.vscode-docker",
-                "vscode-icons-team.vscode-icons",
-                "github.vscode-github-actions"
+                "GitHub.copilot"
             ]
         }
     },
