@@ -48,17 +48,12 @@ resource "azurerm_subnet" "cosmos_subnet" {
 #############################
 
 # Linux App Service Plan for containerized apps
-resource "azurerm_app_service_plan" "asp" {
+resource "azurerm_service_plan" "asp" {
   name                = "serviceplan-asdskfrtdf"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  kind                = "Linux"
-  reserved            = true # must be set to true for Linux App Service Plans
-
-  sku {
-    tier = "Basic"
-    size = "B1"
-  }
+  os_type             = "Linux"
+  sku_name            = "B1"
 }
 
 # Web App for Containers – replace <container_image> with your actual container image reference.
@@ -66,7 +61,7 @@ resource "azurerm_linux_web_app" "webapp" {
   name                = "webapp-sdflretbvsdfr"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  service_plan_id     = azurerm_app_service_plan.asp.id
+  service_plan_id     = azurerm_service_plan.asp.id
 
   site_config {
     application_stack {
@@ -146,6 +141,11 @@ resource "azurerm_private_endpoint" "cosmos_pe" {
     is_manual_connection           = false
     subresource_names              = ["Sql"]
   }
+
+  private_dns_zone_group {
+    name                 = "cosmos"
+    private_dns_zone_ids = azurerm_private_dns_zone.cosmos_dns.id
+  }
 }
 
 # Create a Private DNS Zone for Cosmos DB (for SQL API the zone is "privatelink.documents.azure.com").
@@ -160,12 +160,4 @@ resource "azurerm_private_dns_zone_virtual_network_link" "cosmos_dns_link" {
   resource_group_name   = azurerm_resource_group.rg.name
   private_dns_zone_name = azurerm_private_dns_zone.cosmos_dns.name
   virtual_network_id    = azurerm_virtual_network.vnet.id
-}
-
-# Associate the Private Endpoint with the Private DNS Zone.
-resource "azurerm_private_dns_zone_group" "cosmos_dns_group" {
-  name                 = "cosmos-dns-group-aslfgsdatgqwe"
-  resource_group_name  = azurerm_resource_group.rg.name
-  private_endpoint_id  = azurerm_private_endpoint.cosmos_pe.id
-  private_dns_zone_ids = [azurerm_private_dns_zone.cosmos_dns.id]
 }
