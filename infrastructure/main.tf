@@ -76,6 +76,10 @@ resource "azurerm_linux_web_app" "webapp" {
       docker_image_name = "nginx"
     }
   }
+
+  identity {
+    type = "SystemAssigned"
+  }
 }
 
 # Integrate the Web App with the VNet (using the Swift connection)
@@ -168,4 +172,30 @@ resource "azurerm_private_dns_zone_virtual_network_link" "cosmos_dns_link" {
   resource_group_name   = azurerm_resource_group.rg.name
   private_dns_zone_name = azurerm_private_dns_zone.cosmos_dns.name
   virtual_network_id    = azurerm_virtual_network.vnet.id
+}
+
+resource "azurerm_cosmosdb_sql_role_definition" "role_definition" {
+  name                = "CosmosDBDataContributor"
+  resource_group_name = azurerm_resource_group.rg.name
+  account_name        = azurerm_cosmosdb_account.cosmos.name
+  type                = "CustomRole"
+  assignable_scopes   = [azurerm_cosmosdb_account.cosmos.id]
+
+  permissions {
+    data_actions = [
+      "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/readChangeFeed",
+      "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeQuery",
+      "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/upsert",
+      "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/read",
+      "Microsoft.DocumentDB/databaseAccounts/readMetadata"
+    ]
+  }
+}
+
+resource "azurerm_cosmosdb_sql_role_assignment" "consent_api_service" {
+  resource_group_name = azurerm_resource_group.rg.name
+  scope               = azurerm_cosmosdb_account.cosmos.id
+  account_name        = azurerm_cosmosdb_account.cosmos.name
+  role_definition_id  = azurerm_cosmosdb_sql_role_definition.role_definition.id
+  principal_id        = azurerm_linux_web_app.webapp.identity[0].principal_id
 }
