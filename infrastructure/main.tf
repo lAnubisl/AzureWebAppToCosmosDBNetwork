@@ -144,7 +144,7 @@ resource "azurerm_private_endpoint" "cosmos_pe" {
 
   private_dns_zone_group {
     name                 = "cosmos"
-    private_dns_zone_ids = azurerm_private_dns_zone.cosmos_dns.id
+    private_dns_zone_ids = [azurerm_private_dns_zone.cosmos_dns.id]
   }
 }
 
