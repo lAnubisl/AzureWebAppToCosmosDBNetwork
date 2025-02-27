@@ -5,9 +5,8 @@ terraform {
       version = "4.19.0"
     }
   }
-  required_version = "= 1.9.0"
+  required_version = ">= 1.9.0"
   backend "azurerm" {
-    use_oidc = true
   }
 }
 
