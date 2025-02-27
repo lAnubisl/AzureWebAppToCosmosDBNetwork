@@ -193,6 +193,7 @@ resource "azurerm_cosmosdb_sql_role_definition" "role_definition" {
 }
 
 resource "azurerm_cosmosdb_sql_role_assignment" "consent_api_service" {
+  depends_on = [ azurerm_linux_web_app.webapp ]
   resource_group_name = azurerm_resource_group.rg.name
   scope               = azurerm_cosmosdb_account.cosmos.id
   account_name        = azurerm_cosmosdb_account.cosmos.name
