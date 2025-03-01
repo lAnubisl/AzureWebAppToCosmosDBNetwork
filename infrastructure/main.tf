@@ -46,13 +46,46 @@ resource "azurerm_service_plan" "asp" {
   sku_name            = var.service_plan_sku
 }
 
-resource "azurerm_linux_web_app" "webapp" {
-  name                = var.webapp_name
-  location            = azurerm_resource_group.rg.location
+resource "azurerm_container_registry" "acr" {
+  name                = var.docker_registry_name
   resource_group_name = azurerm_resource_group.rg.name
-  service_plan_id     = azurerm_service_plan.asp.id
+  location            = azurerm_resource_group.rg.location
+  sku                 = "Basic"
+  admin_enabled       = false
+}
+
+resource "azurerm_container_registry_scope_map" "acr_writer" {
+  name                    = "writer"
+  container_registry_name = azurerm_container_registry.acr.name
+  resource_group_name     = azurerm_resource_group.rg.name
+  actions = [
+    "repositories/repo1/content/write"
+  ]
+}
+
+resource "azurerm_container_registry_token" "acr_writer_token" {
+  name                    = "writer"
+  container_registry_name = azurerm_container_registry.acr.name
+  resource_group_name     = azurerm_resource_group.rg.name
+  scope_map_id            = azurerm_container_registry_scope_map.acr_writer.id
+}
+
+resource "azurerm_container_registry_token_password" "acr_writer_token_password" {
+  container_registry_token_id = azurerm_container_registry_token.acr_writer_token.id
+  password1 {
+  }
+}
+
+resource "azurerm_linux_web_app" "webapp" {
+  name                                           = var.webapp_name
+  location                                       = azurerm_resource_group.rg.location
+  resource_group_name                            = azurerm_resource_group.rg.name
+  service_plan_id                                = azurerm_service_plan.asp.id
+  https_only                                     = true
+  webdeploy_publish_basic_authentication_enabled = false
 
   site_config {
+    minimum_tls_version = ""
     application_stack {
       docker_image_name = "nginx"
     }
@@ -65,7 +98,7 @@ resource "azurerm_linux_web_app" "webapp" {
   lifecycle {
     ignore_changes = [
       virtual_network_subnet_id,
-      site_config[0].application_stack 
+      site_config[0].application_stack
     ]
   }
 }
