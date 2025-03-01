@@ -59,6 +59,7 @@ resource "azurerm_container_registry_scope_map" "acr_writer" {
   container_registry_name = azurerm_container_registry.acr.name
   resource_group_name     = azurerm_resource_group.rg.name
   actions = [
+    "repositories/fastapi-cosmos-app/content/read",
     "repositories/fastapi-cosmos-app/content/write"
   ]
 }
