@@ -37,9 +37,17 @@ resource "azurerm_subnet" "webapp_subnet" {
     name = "webapp_delegation"
     service_delegation {
       name    = "Microsoft.Web/serverFarms"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+      actions = [
+        "Microsoft.Network/virtualNetworks/subnets/write",
+        "Microsoft.Network/virtualNetworks/subnets/join/action"
+      ]
     }
   }
+}
+
+resource "azurerm_app_service_virtual_network_swift_connection" "vnet_integration" {
+  app_service_id = azurerm_linux_web_app.webapp.id
+  subnet_id      = azurerm_subnet.webapp_subnet.id
 }
 
 # Subnet for Cosmos DB private endpoint; disable network policies to allow private endpoint connections
