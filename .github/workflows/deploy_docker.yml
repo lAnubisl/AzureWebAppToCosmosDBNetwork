@@ -31,7 +31,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./app
-          file: Dockerfile
           push: true
           tags: ${{ vars.DOCKER_LOGIN_SERVER }}/fastapi-cosmos-app:latest
       
