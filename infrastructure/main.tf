@@ -82,12 +82,6 @@ resource "azurerm_linux_web_app" "webapp" {
   }
 }
 
-# Integrate the Web App with the VNet (using the Swift connection)
-resource "azurerm_app_service_virtual_network_swift_connection" "vnet_integration" {
-  app_service_id = azurerm_linux_web_app.webapp.id
-  subnet_id      = azurerm_subnet.webapp_subnet.id
-}
-
 #############################
 # Cosmos DB (Serverless) Setup
 #############################
