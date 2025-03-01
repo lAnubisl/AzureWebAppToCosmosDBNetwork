@@ -85,6 +85,10 @@ resource "azurerm_linux_web_app" "webapp" {
   identity {
     type = "SystemAssigned"
   }
+
+  lifecycle {
+    ignore_changes = [ site_config.application_stack ]
+  }
 }
 
 #############################
@@ -184,6 +188,7 @@ resource "azurerm_cosmosdb_sql_role_definition" "role_definition" {
     data_actions = [
       "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/readChangeFeed",
       "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeQuery",
+      "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/create",
       "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/upsert",
       "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/read",
       "Microsoft.DocumentDB/databaseAccounts/readMetadata"
