@@ -42,11 +42,12 @@ resource "azurerm_subnet" "webapp_subnet" {
   }
 }
 
+/*
 resource "azurerm_app_service_virtual_network_swift_connection" "vnet_integration" {
   app_service_id = azurerm_linux_web_app.webapp.id
   subnet_id      = azurerm_subnet.webapp_subnet.id
 }
-
+*/
 # Subnet for Cosmos DB private endpoint; disable network policies to allow private endpoint connections
 resource "azurerm_subnet" "cosmos_subnet" {
   name                                          = "cosmos-subnet"
@@ -87,7 +88,10 @@ resource "azurerm_linux_web_app" "webapp" {
   }
 
   lifecycle {
-    ignore_changes = [ site_config[0].application_stack ]
+    ignore_changes = [
+      virtual_network_subnet_id,
+      site_config[0].application_stack 
+    ]
   }
 }
 
