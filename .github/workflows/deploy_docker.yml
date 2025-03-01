@@ -29,10 +29,9 @@ jobs:
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
-        working-directory: ./app
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./app
+          file: Dockerfile
           push: true
           tags: ${{ vars.DOCKER_LOGIN_SERVER }}/fastapi-cosmos-app:latest
       
