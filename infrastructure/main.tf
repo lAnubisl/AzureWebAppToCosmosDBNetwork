@@ -130,7 +130,7 @@ resource "azurerm_linux_web_app" "webapp" {
   lifecycle {
     ignore_changes = [
       virtual_network_subnet_id,
-      site_config[0].application_stack.docker_image_name
+      site_config[0].application_stack[0].docker_image_name
     ]
   }
 }
