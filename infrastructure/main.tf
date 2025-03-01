@@ -85,7 +85,7 @@ resource "azurerm_linux_web_app" "webapp" {
   webdeploy_publish_basic_authentication_enabled = false
 
   site_config {
-    minimum_tls_version = ""
+    minimum_tls_version = "1.3"
     application_stack {
       docker_image_name = "nginx"
     }
