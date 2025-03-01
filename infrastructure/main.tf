@@ -1,32 +1,15 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "4.19.0"
-    }
-  }
-  required_version = ">= 1.9.0"
-  backend "azurerm" {
-  }
-}
-
-provider "azurerm" {
-  features {}
-}
-
 resource "azurerm_resource_group" "rg" {
-  name     = "rm-webapp-cosmosdb"
-  location = "westeurope"
+  name     = var.resource_group_name
+  location = var.resource_group_location
 }
 
 resource "azurerm_virtual_network" "vnet" {
-  name                = "vnet-webapp-cosmosdb"
+  name                = ver.virtual_network_name
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 }
 
-# Subnet for Web App VNet integration
 resource "azurerm_subnet" "webapp_subnet" {
   name                 = "webapp-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
@@ -47,7 +30,6 @@ resource "azurerm_app_service_virtual_network_swift_connection" "vnet_integratio
   subnet_id      = azurerm_subnet.webapp_subnet.id
 }
 
-# Subnet for Cosmos DB private endpoint; disable network policies to allow private endpoint connections
 resource "azurerm_subnet" "cosmos_subnet" {
   name                                          = "cosmos-subnet"
   resource_group_name                           = azurerm_resource_group.rg.name
@@ -56,22 +38,16 @@ resource "azurerm_subnet" "cosmos_subnet" {
   private_link_service_network_policies_enabled = false
 }
 
-#############################
-# App Service Plan & Web App
-#############################
-
-# Linux App Service Plan for containerized apps
 resource "azurerm_service_plan" "asp" {
-  name                = "serviceplan-asdskfrtdf"
+  name                = ver.service_plan_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   os_type             = "Linux"
-  sku_name            = "B1"
+  sku_name            = var.service_plan_sku
 }
 
-# Web App for Containers – replace <container_image> with your actual container image reference.
 resource "azurerm_linux_web_app" "webapp" {
-  name                = "webapp-sdflretbvsdfr"
+  name                = var.webapp_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   service_plan_id     = azurerm_service_plan.asp.id
@@ -94,13 +70,8 @@ resource "azurerm_linux_web_app" "webapp" {
   }
 }
 
-#############################
-# Cosmos DB (Serverless) Setup
-#############################
-
-# Create Cosmos DB account with serverless capability and disable public access.
 resource "azurerm_cosmosdb_account" "cosmos" {
-  name                = "cosmos-asgbdsfgegdfg"
+  name                = var.cosmosdb_account_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   offer_type          = "Standard"
@@ -125,7 +96,7 @@ resource "azurerm_cosmosdb_account" "cosmos" {
 }
 
 resource "azurerm_cosmosdb_sql_database" "db" {
-  name                = "data"
+  name                = var.cosmosdb_database_name
   resource_group_name = azurerm_resource_group.rg.name
   account_name        = azurerm_cosmosdb_account.cosmos.name
 }
@@ -146,15 +117,14 @@ resource "azurerm_cosmosdb_sql_container" "dbcontainer" {
   }
 }
 
-# Create a Private Endpoint for the Cosmos DB account.
 resource "azurerm_private_endpoint" "cosmos_pe" {
-  name                = "pep-cosmosdb-asddsdfgkjdsfg"
+  name                = var.cosmosdb_private_endpoint_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   subnet_id           = azurerm_subnet.cosmos_subnet.id
 
   private_service_connection {
-    name                           = "pep-conn-cosmos-connection-sdafgsdakteq"
+    name                           = "pep-cosmos-service-connection"
     private_connection_resource_id = azurerm_cosmosdb_account.cosmos.id
     is_manual_connection           = false
     subresource_names              = ["Sql"]
@@ -166,15 +136,13 @@ resource "azurerm_private_endpoint" "cosmos_pe" {
   }
 }
 
-# Create a Private DNS Zone for Cosmos DB (for SQL API the zone is "privatelink.documents.azure.com").
 resource "azurerm_private_dns_zone" "cosmos_dns" {
   name                = "privatelink.documents.azure.com"
   resource_group_name = azurerm_resource_group.rg.name
 }
 
-# Link the Private DNS Zone to the virtual network.
 resource "azurerm_private_dns_zone_virtual_network_link" "cosmos_dns_link" {
-  name                  = "cosmos-dns-link-asdasdreyjnfg"
+  name                  = "cosmos-dns-link"
   resource_group_name   = azurerm_resource_group.rg.name
   private_dns_zone_name = azurerm_private_dns_zone.cosmos_dns.name
   virtual_network_id    = azurerm_virtual_network.vnet.id
