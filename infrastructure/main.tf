@@ -76,11 +76,11 @@ resource "azurerm_container_registry_token_password" "acr_writer_token_password"
   }
 }
 
-resource "azurerm_role_assignment" "webapp_acr_pull" {
-  scope                = azurerm_container_registry.acr.id
-  role_definition_name = "AcrPull"
-  principal_id         = azurerm_linux_web_app.webapp.identity[0].principal_id
-}
+# resource "azurerm_role_assignment" "webapp_acr_pull" {
+#   scope                = azurerm_container_registry.acr.id
+#   role_definition_name = "AcrPull"
+#   principal_id         = azurerm_linux_web_app.webapp.identity[0].principal_id
+# }
 
 resource "azurerm_linux_web_app" "webapp" {
   name                                           = var.webapp_name
