@@ -45,5 +45,6 @@ jobs:
       - uses: azure/webapps-deploy@v2
         with:
           app-name: 'webapp-sdflretbvsdfr'
+          slot-name: 'stage'
           images: ${{ vars.DOCKER_LOGIN_SERVER }}/fastapi-cosmos-app:${{ github.sha }}
       
