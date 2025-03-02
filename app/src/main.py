@@ -20,7 +20,7 @@ async def health():
     """
     Health check endpoint.
     """
-    return {"status": "OK"}
+    return {"status": "OK!"}
 
 @app.post("/items")
 async def create_item(item: dict):
