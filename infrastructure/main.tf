@@ -135,6 +135,20 @@ resource "azurerm_linux_web_app" "webapp" {
   }
 }
 
+resource "azurerm_linux_web_app_slot" "webapp_slot" {
+  name           = "stage"
+  app_service_id = azurerm_service_plan.asp.id
+
+  site_config {
+    minimum_tls_version = "1.3"
+    application_stack {
+      docker_registry_url = "https://${azurerm_container_registry.acr.login_server}"
+      docker_registry_username = azurerm_container_registry_scope_map.acr_reader.name
+      docker_registry_password = azurerm_container_registry_token_password.acr_reader_token_password.password1[0].value
+    }
+  }
+}
+
 resource "azurerm_cosmosdb_account" "cosmos" {
   name                = var.cosmosdb_account_name
   location            = azurerm_resource_group.rg.location
