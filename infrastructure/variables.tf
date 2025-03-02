@@ -20,7 +20,7 @@ variable "service_plan_name" {
 
 variable "service_plan_sku" {
   type    = string
-  default = "B1"
+  default = "P0v3"
 }
 
 variable "webapp_name" {
