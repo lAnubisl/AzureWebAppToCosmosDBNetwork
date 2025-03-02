@@ -137,7 +137,7 @@ resource "azurerm_linux_web_app" "webapp" {
 
 resource "azurerm_linux_web_app_slot" "webapp_slot" {
   name           = "stage"
-  app_service_id = azurerm_service_plan.asp.id
+  app_service_id = azurerm_linux_web_app.webapp.id
 
   site_config {
     minimum_tls_version = "1.3"
