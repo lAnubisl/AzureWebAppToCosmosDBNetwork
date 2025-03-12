@@ -50,6 +50,12 @@ resource "azurerm_linux_web_app_slot" "webapp_slot" {
   identity {
     type = "SystemAssigned"
   }
+
+  lifecycle {
+    ignore_changes = [
+      virtual_network_subnet_id
+    ]
+  }
 }
 
 resource "azurerm_cosmosdb_sql_role_assignment" "ra_cosmos_webapp" {
