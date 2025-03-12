@@ -19,9 +19,6 @@ resource "azurerm_linux_web_app" "webapp" {
     container_registry_use_managed_identity = true
     application_stack {
       docker_image_name = "nginx"
-      # docker_registry_url = "https://${azurerm_container_registry.acr.login_server}"
-      # docker_registry_username = azurerm_container_registry_scope_map.acr_reader.name
-      # docker_registry_password = azurerm_container_registry_token_password.acr_reader_token_password.password1[0].value
     }
   }
 
