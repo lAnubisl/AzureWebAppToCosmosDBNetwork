@@ -73,7 +73,8 @@ resource "azurerm_app_service_virtual_network_swift_connection" "vnet_webapp" {
   subnet_id      = azurerm_subnet.webapp_subnet.id
 }
 
-resource "azurerm_app_service_virtual_network_swift_connection" "vnet_webapp_slot" {
-  app_service_id = azurerm_linux_web_app_slot.webapp_slot.id
+resource "azurerm_app_service_slot_virtual_network_swift_connection" "vnet_webapp_slot" {
+  slot_name      = azurerm_linux_web_app_slot.webapp_slot.name
+  app_service_id = azurerm_linux_web_app.webapp.id
   subnet_id      = azurerm_subnet.webapp_subnet.id
 }
