@@ -68,7 +68,12 @@ resource "azurerm_cosmosdb_sql_role_assignment" "ra_cosmos_webapp_slot" {
   principal_id        = azurerm_linux_web_app_slot.webapp_slot.identity[0].principal_id
 }
 
-resource "azurerm_app_service_virtual_network_swift_connection" "vnet_integration" {
+resource "azurerm_app_service_virtual_network_swift_connection" "vnet_webapp" {
   app_service_id = azurerm_linux_web_app.webapp.id
+  subnet_id      = azurerm_subnet.webapp_subnet.id
+}
+
+resource "azurerm_app_service_virtual_network_swift_connection" "vnet_webapp_slot" {
+  app_service_id = azurerm_linux_web_app_slot.webapp_slot.id
   subnet_id      = azurerm_subnet.webapp_subnet.id
 }
