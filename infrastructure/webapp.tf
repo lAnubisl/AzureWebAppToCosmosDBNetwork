@@ -44,7 +44,6 @@ resource "azurerm_linux_web_app_slot" "webapp_slot" {
   site_config {
     always_on = false
     container_registry_use_managed_identity = true
-    auto_swap_slot_name = "production"
   }
 
   identity {
