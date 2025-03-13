@@ -14,6 +14,7 @@ credential = DefaultAzureCredential()
 client = CosmosClient(COSMOS_URL, credential=credential)
 database = client.get_database_client(DATABASE_NAME)
 container = database.get_container_client(CONTAINER_NAME)
+build_hash = os.environ["BUILD_HASH"]
 
 @app.get("/health")
 async def health():
@@ -54,6 +55,15 @@ async def read_item(item_id: str):
         raise HTTPException(status_code=e.status_code, detail=e.message)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/deployment")
+async def deployment(hash: str):
+    """
+    Check if the provided build_hash matches the server's build_hash.
+    """
+    if hash == build_hash:
+        return {"status": "success"}
+    raise HTTPException(status_code=400, detail="Bad request: hash does not match")
 
 if __name__ == "__main__":
     import uvicorn

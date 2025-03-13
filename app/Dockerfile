@@ -1,6 +1,10 @@
 FROM python:3.13.2-alpine3.21 AS base
 ARG buildHash
 WORKDIR /app
+
+ENV BUILD_HASH=$buildHash
+
+RUN apk add --no-cache curl
 COPY requirements.txt .
 RUN adduser --disabled-password appuser && \
     chown -R appuser:appuser /app

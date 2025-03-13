@@ -33,6 +33,8 @@ jobs:
           context: ./app
           push: true
           tags: ${{ vars.DOCKER_LOGIN_SERVER }}/fastapi-cosmos-app:${{ github.sha }}
+          build-args: |
+            buildHash=${{ github.sha }}
 
       - name: 'Az CLI login'
         uses: azure/login@v2
@@ -47,4 +49,17 @@ jobs:
           app-name: 'webapp-sdflretbvsdfr'
           slot-name: 'stage'
           images: ${{ vars.DOCKER_LOGIN_SERVER }}/fastapi-cosmos-app:${{ github.sha }}
+
+      - name: Health check
+        uses: jtalk/url-health-check-action@v4
+        with:
+          url: ${{ vars.DOCKER_LOGIN_SERVER }}/deployment?hash=${{ github.sha }}
+          max-attempts: 10
+          retry-delay: 5s
+
+      - name: Azure Swap Slots
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az webapp deployment slot swap --slot stage --name ${{vars.WEB_APP_NAME}} --resource-group ${{vars.RESOURCE_GROUP_NAME}}
       
