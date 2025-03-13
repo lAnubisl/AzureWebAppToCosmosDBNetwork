@@ -56,12 +56,12 @@ async def read_item(item_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/deployment")
-async def deployment(hash: str):
+@app.get("/check/{h}")
+async def check(h: str):
     """
     Check if the provided build_hash matches the server's build_hash.
     """
-    if hash == build_hash:
+    if h == build_hash:
         return {"status": "success"}
     raise HTTPException(status_code=400, detail="Bad request: hash does not match")
 
