@@ -16,12 +16,14 @@ database = client.get_database_client(DATABASE_NAME)
 container = database.get_container_client(CONTAINER_NAME)
 build_hash = os.environ["BUILD_HASH"]
 
-@app.get("/health")
-async def health():
+@app.get("/health/{h}")
+async def health(h: str):
     """
-    Health check endpoint.
+    Check if the provided build_hash matches the server's build_hash.
     """
-    return {"status": "OK!"}
+    if h == build_hash:
+        return {"status": "OK"}
+    raise HTTPException(status_code=400, detail="Bad request: hash does not match")
 
 @app.post("/items")
 async def create_item(item: dict):
@@ -55,15 +57,6 @@ async def read_item(item_id: str):
         raise HTTPException(status_code=e.status_code, detail=e.message)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/check/{h}")
-async def check(h: str):
-    """
-    Check if the provided build_hash matches the server's build_hash.
-    """
-    if h == build_hash:
-        return {"status": "success"}
-    raise HTTPException(status_code=400, detail="Bad request: hash does not match")
 
 if __name__ == "__main__":
     import uvicorn
