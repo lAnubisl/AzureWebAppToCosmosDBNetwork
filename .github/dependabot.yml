@@ -9,4 +9,51 @@ updates:
  - package-ecosystem: "devcontainers"
    directory: "/"
    schedule:
-     interval: weekly
+     interval: "monthly"
+   labels:
+     - "dependencies"
+     - "devcontainers"
+   open-pull-requests-limit: 1
+     groups:
+       all-dependencies:
+         patterns:
+           - "*"
+    
+ - package-ecosystem: "pip"
+   directory: "/app"
+   schedule:
+     interval: "monthly"
+   labels:
+     - "dependencies"
+     - "python"
+   open-pull-requests-limit: 1
+     groups:
+       all-dependencies:
+         patterns:
+           - "*"
+
+ - package-ecosystem: "terraform"
+   directory: "/infrastructure"
+   schedule:
+     interval: "monthly"
+   labels:
+     - "dependencies"
+     - "terraform"
+   open-pull-requests-limit: 1
+     groups:
+       all-dependencies:
+         patterns:
+           - "*"
+
+ - package-ecosystem: "github-actions"
+   directory: "/"
+   schedule:
+     interval: "monthly"
+   labels:
+     - "dependencies"
+     - "github-actions"
+   open-pull-requests-limit: 1
+     groups:
+       all-dependencies:
+         patterns:
+           - "*"
