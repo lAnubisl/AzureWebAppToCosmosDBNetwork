@@ -25,7 +25,7 @@ jobs:
 
       - name: Terraform Init
         working-directory: ./infrastructure
-        run : terraform init -backend-config="backend.tfvars"
+        run: terraform init -backend-config="backend.tfvars"
 
       - name: Terraform Plan
         working-directory: ./infrastructure

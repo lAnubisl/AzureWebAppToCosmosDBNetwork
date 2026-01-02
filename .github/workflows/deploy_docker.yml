@@ -15,6 +15,13 @@ env:
 jobs:
   infrastructure:
     runs-on: ubuntu-latest
+    outputs:
+      webapp_name: ${{ steps.output.outputs.webapp_name }}
+      docker_login_server: ${{ steps.output.outputs.docker_login_server }}
+      resource_group_name: ${{ steps.output.outputs.resource_group_name }}
+      stage_slot_url: ${{ steps.output.outputs.stage_slot_url }}
+      docker_registry_username: ${{ steps.output.outputs.docker_registry_username }}
+      docker_registry_password: ${{ steps.output.outputs.docker_registry_password }}
     steps:
       - uses: actions/checkout@v6
 
@@ -25,7 +32,7 @@ jobs:
 
       - name: Terraform Init
         working-directory: ./infrastructure
-        run : terraform init -backend-config="backend.tfvars"
+        run: terraform init -backend-config="backend.tfvars"
 
       - name: 'Terraform Output'
         id: output
@@ -38,7 +45,7 @@ jobs:
           docker_registry_username=$(terraform output -raw docker_registry_username)
           docker_registry_password=$(terraform output -raw docker_registry_password)
           echo "webapp_name=${webapp_name}" >> $GITHUB_OUTPUT
-          echo "dockerLoginServer=${docker_login_server}" >> $GITHUB_OUTPUT
+          echo "docker_login_server=${docker_login_server}" >> $GITHUB_OUTPUT
           echo "resource_group_name=${resource_group_name}" >> $GITHUB_OUTPUT
           echo "stage_slot_url=${stage_slot_url}" >> $GITHUB_OUTPUT
           echo "docker_registry_username=${docker_registry_username}" >> $GITHUB_OUTPUT

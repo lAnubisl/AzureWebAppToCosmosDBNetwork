@@ -15,7 +15,7 @@ resource "azurerm_linux_web_app" "webapp" {
   webdeploy_publish_basic_authentication_enabled = false
 
   site_config {
-    minimum_tls_version = "1.3"
+    minimum_tls_version                     = "1.3"
     container_registry_use_managed_identity = true
     application_stack {
       docker_image_name = "nginx"
@@ -39,7 +39,7 @@ resource "azurerm_linux_web_app_slot" "webapp_slot" {
   app_service_id = azurerm_linux_web_app.webapp.id
 
   site_config {
-    always_on = false
+    always_on                               = false
     container_registry_use_managed_identity = true
   }
 
