@@ -7,11 +7,11 @@ output "docker_login_server" {
 }
 
 output "docker_registry_username" {
-  value = azurerm_container_registry.acr.admin_username
+  value = azurerm_container_registry_token.acr_writer_token.name
 }
 
 output "docker_registry_password" {
-  value     = azurerm_container_registry.acr.admin_password
+  value     = azurerm_container_registry_token_password.acr_writer_token_password.password1[0].value
   sensitive = true
 }
 
