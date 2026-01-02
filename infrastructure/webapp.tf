@@ -14,6 +14,12 @@ resource "azurerm_linux_web_app" "webapp" {
   https_only                                     = true
   webdeploy_publish_basic_authentication_enabled = false
 
+  app_settings = {
+    "COSMOS_URL"= azurerm_cosmosdb_account.cosmos.endpoint
+    "DATABASE_NAME" = azurerm_cosmosdb_sql_database.cosmos_db.name
+    "CONTAINER_NAME" = azurerm_cosmosdb_sql_container.dbcontainer.name
+  }
+
   site_config {
     minimum_tls_version                     = "1.3"
     container_registry_use_managed_identity = true
@@ -37,6 +43,12 @@ resource "azurerm_linux_web_app" "webapp" {
 resource "azurerm_linux_web_app_slot" "webapp_slot" {
   name           = "stage"
   app_service_id = azurerm_linux_web_app.webapp.id
+
+  app_settings = {
+    "COSMOS_URL"= azurerm_cosmosdb_account.cosmos.endpoint
+    "DATABASE_NAME" = azurerm_cosmosdb_sql_database.cosmos_db.name
+    "CONTAINER_NAME" = azurerm_cosmosdb_sql_container.dbcontainer.name
+  }
 
   site_config {
     always_on                               = false
