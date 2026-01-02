@@ -1,5 +1,5 @@
 resource "azurerm_cosmosdb_account" "cosmos" {
-  name                = var.cosmosdb_account_name
+  name                = local.cosmosdb_account_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   offer_type          = "Standard"
@@ -24,7 +24,7 @@ resource "azurerm_cosmosdb_account" "cosmos" {
 }
 
 resource "azurerm_cosmosdb_sql_database" "db" {
-  name                = var.cosmosdb_database_name
+  name                = local.cosmosdb_database_name
   resource_group_name = azurerm_resource_group.rg.name
   account_name        = azurerm_cosmosdb_account.cosmos.name
 }
@@ -65,7 +65,7 @@ resource "azurerm_cosmosdb_sql_role_definition" "role_definition" {
 }
 
 resource "azurerm_private_endpoint" "cosmos_pe" {
-  name                = var.cosmosdb_private_endpoint_name
+  name                = local.cosmosdb_private_endpoint_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   subnet_id           = azurerm_subnet.cosmos_subnet.id

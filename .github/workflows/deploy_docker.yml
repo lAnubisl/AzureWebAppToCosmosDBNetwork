@@ -13,6 +13,37 @@ env:
   ARM_USE_OIDC: true
 
 jobs:
+  infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.0
+
+      - name: Terraform Init
+        working-directory: ./infrastructure
+        run : terraform init -backend-config="backend.tfvars"
+
+      - name: 'Terraform Output'
+        id: output
+        working-directory: ./infrastructure
+        run: |
+          webapp_name=$(terraform output -raw webapp_name)
+          docker_login_server=$(terraform output -raw docker_login_server)
+          resource_group_name=$(terraform output -raw resource_group_name)
+          stage_slot_url=$(terraform output -raw stage_slot_url)
+          docker_registry_username=$(terraform output -raw docker_registry_username)
+          docker_registry_password=$(terraform output -raw docker_registry_password)
+          echo "webapp_name=${webapp_name}" >> $GITHUB_OUTPUT
+          echo "dockerLoginServer=${docker_login_server}" >> $GITHUB_OUTPUT
+          echo "resource_group_name=${resource_group_name}" >> $GITHUB_OUTPUT
+          echo "stage_slot_url=${stage_slot_url}" >> $GITHUB_OUTPUT
+          echo "docker_registry_username=${docker_registry_username}" >> $GITHUB_OUTPUT
+          echo "docker_registry_password=${docker_registry_password}" >> $GITHUB_OUTPUT
+
   application:
     runs-on: ubuntu-latest
     steps:
@@ -23,16 +54,16 @@ jobs:
       - name: Log in to Docker Registry
         uses: docker/login-action@v2
         with:
-          registry: ${{ vars.DOCKER_LOGIN_SERVER }}
-          username: ${{ vars.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ${{ needs.infrastructure.outputs.docker_login_server }}
+          username: ${{ needs.infrastructure.outputs.docker_registry_username }}
+          password: ${{ needs.infrastructure.outputs.docker_registry_password }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: ./app
           push: true
-          tags: ${{ vars.DOCKER_LOGIN_SERVER }}/fastapi-cosmos-app:${{ github.sha }}
+          tags: ${{ needs.infrastructure.outputs.docker_login_server }}/fastapi-cosmos-app:${{ github.sha }}
           build-args: |
             buildHash=${{ github.sha }}
 
@@ -46,14 +77,14 @@ jobs:
 
       - uses: azure/webapps-deploy@v2
         with:
-          app-name: 'webapp-sdflretbvsdfr'
+          app-name: ${{ needs.infrastructure.outputs.webapp_name }}
           slot-name: 'stage'
-          images: ${{ vars.DOCKER_LOGIN_SERVER }}/fastapi-cosmos-app:${{ github.sha }}
+          images: ${{ needs.infrastructure.outputs.docker_login_server }}/fastapi-cosmos-app:${{ github.sha }}
 
       - name: Health check
         uses: jtalk/url-health-check-action@v4
         with:
-          url: ${{ vars.STAGE_SLOT_URI }}/health/${{ github.sha }}
+          url: ${{ needs.infrastructure.outputs.stage_slot_url }}/health/${{ github.sha }}
           retry-all: true
           max-attempts: 10
           retry-delay: 5s
@@ -62,5 +93,5 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az webapp deployment slot swap --slot stage --name ${{vars.WEB_APP_NAME}} --resource-group ${{vars.RESOURCE_GROUP_NAME}}
+            az webapp deployment slot swap --slot stage --name ${{ needs.infrastructure.outputs.webapp_name }} --resource-group ${{ needs.infrastructure.outputs.resource_group_name }}
       

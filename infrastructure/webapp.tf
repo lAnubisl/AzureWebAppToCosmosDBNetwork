@@ -1,13 +1,13 @@
 resource "azurerm_service_plan" "asp" {
-  name                = var.service_plan_name
+  name                = local.service_plan_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   os_type             = "Linux"
-  sku_name            = var.service_plan_sku
+  sku_name            = "P0v3"
 }
 
 resource "azurerm_linux_web_app" "webapp" {
-  name                                           = var.webapp_name
+  name                                           = local.webapp_name
   location                                       = azurerm_resource_group.rg.location
   resource_group_name                            = azurerm_resource_group.rg.name
   service_plan_id                                = azurerm_service_plan.asp.id
