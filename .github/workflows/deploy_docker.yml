@@ -53,6 +53,7 @@ jobs:
 
   application:
     runs-on: ubuntu-latest
+    needs: infrastructure
     steps:
       - uses: actions/checkout@v6
 
