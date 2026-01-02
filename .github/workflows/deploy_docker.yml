@@ -19,6 +19,7 @@ jobs:
       webapp_name: ${{ steps.output.outputs.webapp_name }}
       docker_login_server: ${{ steps.output.outputs.docker_login_server }}
       stage_slot_url: ${{ steps.output.outputs.stage_slot_url }}
+      resource_group_name: ${{ steps.output.outputs.resource_group_name }}
     steps:
       - uses: actions/checkout@v6
 
@@ -38,6 +39,8 @@ jobs:
           webapp_name=$(terraform output -raw webapp_name)
           docker_login_server=$(terraform output -raw docker_login_server)
           stage_slot_url=$(terraform output -raw stage_slot_url)
+          resource_group_name=$(terraform output -raw resource_group_name)
+          echo "resource_group_name=${resource_group_name}" >> $GITHUB_OUTPUT
           echo "webapp_name=${webapp_name}" >> $GITHUB_OUTPUT
           echo "docker_login_server=${docker_login_server}" >> $GITHUB_OUTPUT
           echo "stage_slot_url=${stage_slot_url}" >> $GITHUB_OUTPUT
