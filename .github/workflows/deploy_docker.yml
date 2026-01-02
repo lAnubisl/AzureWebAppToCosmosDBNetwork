@@ -43,13 +43,11 @@ jobs:
           resource_group_name=$(terraform output -raw resource_group_name)
           stage_slot_url=$(terraform output -raw stage_slot_url)
           docker_registry_username=$(terraform output -raw docker_registry_username)
-          docker_registry_password=$(terraform output -raw docker_registry_password)
           echo "webapp_name=${webapp_name}" >> $GITHUB_OUTPUT
           echo "docker_login_server=${docker_login_server}" >> $GITHUB_OUTPUT
           echo "resource_group_name=${resource_group_name}" >> $GITHUB_OUTPUT
           echo "stage_slot_url=${stage_slot_url}" >> $GITHUB_OUTPUT
           echo "docker_registry_username=${docker_registry_username}" >> $GITHUB_OUTPUT
-          echo "docker_registry_password=${docker_registry_password}" >> $GITHUB_OUTPUT
 
   application:
     runs-on: ubuntu-latest
@@ -59,12 +57,19 @@ jobs:
 
       - uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker Registry
-        uses: docker/login-action@v3
+      - name: 'Az CLI login'
+        uses: azure/login@v2
         with:
-          registry: ${{ needs.infrastructure.outputs.docker_login_server }}
-          username: ${{ needs.infrastructure.outputs.docker_registry_username }}
-          password: ${{ needs.infrastructure.outputs.docker_registry_password }}
+          client-id: ${{ env.ARM_CLIENT_ID }}
+          tenant-id: ${{ env.ARM_TENANT_ID }}
+          subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
+          environment: azurecloud
+
+      - name: Login to ACR
+        run: |
+          # docker_login_server is like: myregistry.azurecr.io
+          ACR_NAME=$(echo "${{ needs.infrastructure.outputs.docker_login_server }}" | cut -d'.' -f1)
+          az acr login --name "$ACR_NAME"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -74,14 +79,6 @@ jobs:
           tags: ${{ needs.infrastructure.outputs.docker_login_server }}/fastapi-cosmos-app:${{ github.sha }}
           build-args: |
             buildHash=${{ github.sha }}
-
-      - name: 'Az CLI login'
-        uses: azure/login@v2
-        with:
-          client-id: ${{ env.ARM_CLIENT_ID }}
-          tenant-id: ${{ env.ARM_TENANT_ID }}
-          subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
-          environment: azurecloud
 
       - uses: azure/webapps-deploy@v3
         with:
