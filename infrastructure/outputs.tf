@@ -11,7 +11,8 @@ output "docker_registry_username" {
 }
 
 output "docker_registry_password" {
-  value = azurerm_container_registry.acr.admin_password
+  value     = azurerm_container_registry.acr.admin_password
+  sensitive = true
 }
 
 output "resource_group_name" {
