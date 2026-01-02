@@ -16,7 +16,7 @@ resource "azurerm_linux_web_app" "webapp" {
 
   app_settings = {
     "COSMOS_URL"= azurerm_cosmosdb_account.cosmos.endpoint
-    "DATABASE_NAME" = azurerm_cosmosdb_sql_database.cosmos_db.name
+    "DATABASE_NAME" = azurerm_cosmosdb_sql_database.db.name
     "CONTAINER_NAME" = azurerm_cosmosdb_sql_container.dbcontainer.name
   }
 
@@ -46,7 +46,7 @@ resource "azurerm_linux_web_app_slot" "webapp_slot" {
 
   app_settings = {
     "COSMOS_URL"= azurerm_cosmosdb_account.cosmos.endpoint
-    "DATABASE_NAME" = azurerm_cosmosdb_sql_database.cosmos_db.name
+    "DATABASE_NAME" = azurerm_cosmosdb_sql_database.db.name
     "CONTAINER_NAME" = azurerm_cosmosdb_sql_container.dbcontainer.name
   }
 
