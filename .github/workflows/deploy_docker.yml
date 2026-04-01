@@ -51,10 +51,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       - name: 'Az CLI login'
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ env.ARM_CLIENT_ID }}
           tenant-id: ${{ env.ARM_TENANT_ID }}
@@ -68,7 +68,7 @@ jobs:
           az acr login --name "$ACR_NAME"
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./app
           push: true
@@ -83,7 +83,7 @@ jobs:
           images: ${{ needs.infrastructure.outputs.docker_login_server }}/fastapi-cosmos-app:${{ github.sha }}
 
       - name: Health check
-        uses: jtalk/url-health-check-action@v4
+        uses: jtalk/url-health-check-action@v5
         with:
           url: ${{ needs.infrastructure.outputs.stage_slot_url }}/health/${{ github.sha }}
           retry-all: true
@@ -91,7 +91,7 @@ jobs:
           retry-delay: 5s
 
       - name: Azure Swap Slots
-        uses: azure/CLI@v2
+        uses: azure/CLI@v3
         with:
           inlineScript: |
             az webapp deployment slot swap --slot stage --name ${{ needs.infrastructure.outputs.webapp_name }} --resource-group ${{ needs.infrastructure.outputs.resource_group_name }}
