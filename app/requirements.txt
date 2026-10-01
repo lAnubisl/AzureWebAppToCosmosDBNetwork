@@ -1,4 +1,4 @@
-uvicorn==0.52.4
+uvicorn==0.54.0
 fastapi==0.141.1
 azure-identity==1.25.3
-azure-cosmos==4.16.3
+azure-cosmos==4.17.1
